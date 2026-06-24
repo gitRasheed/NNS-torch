@@ -43,3 +43,17 @@ Performance expectation:
 - Asymmetric CoPM is useful only if separate `UL` and `LU` behavior improves training enough to pay for the extra quadrant work.
 
 Use it for small controlled experiments first, not as the default PM-Network objective.
+
+Tiny sanity example:
+
+```python
+import torch
+from nns_torch import experimental as exp
+
+x = torch.tensor([-2.0, -1.0, 1.0, 3.0])
+y = torch.tensor([2.0, -3.0, 4.0, -1.0])
+
+components = exp.asym_pm_components(x, y, target_x=0.0, target_y=0.0, degree=2.0, dim=0)
+symmetric = exp.asym_pm_cor(x, y, 0.0, 0.0, degree=2.0, weights=(1.0, 1.0, -1.0, -1.0), dim=0)
+ul_sensitive = exp.asym_pm_cor(x, y, 0.0, 0.0, degree=2.0, weights=(1.0, 1.0, -2.0, 0.0), dim=0)
+```
