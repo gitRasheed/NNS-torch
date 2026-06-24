@@ -6,8 +6,19 @@ import torch.nn.functional as F
 EPS = 1e-8
 
 
-def _reduce(x: torch.Tensor, dim=None, keepdim: bool = False) -> torch.Tensor:
-    return x.mean() if dim is None else x.mean(dim=dim, keepdim=keepdim)
+def _reduce(
+    x: torch.Tensor,
+    dim=None,
+    keepdim: bool = False,
+    reduction: str = "mean",
+) -> torch.Tensor:
+    if reduction == "none":
+        return x
+    if reduction == "sum":
+        return x.sum() if dim is None else x.sum(dim=dim, keepdim=keepdim)
+    if reduction == "mean":
+        return x.mean() if dim is None else x.mean(dim=dim, keepdim=keepdim)
+    raise ValueError("reduction must be 'none', 'sum', or 'mean'")
 
 
 def upm_elem(
@@ -38,10 +49,11 @@ def upm(
     degree: float | torch.Tensor = 1.0,
     dim=None,
     keepdim: bool = False,
+    reduction: str = "mean",
     eps: float = EPS,
 ) -> torch.Tensor:
-    """Upper partial moment reduced by mean."""
-    return _reduce(upm_elem(x, target=target, degree=degree, eps=eps), dim, keepdim)
+    """Upper partial moment reduced by mean, sum, or not reduced."""
+    return _reduce(upm_elem(x, target=target, degree=degree, eps=eps), dim, keepdim, reduction)
 
 
 def lpm(
@@ -50,8 +62,8 @@ def lpm(
     degree: float | torch.Tensor = 1.0,
     dim=None,
     keepdim: bool = False,
+    reduction: str = "mean",
     eps: float = EPS,
 ) -> torch.Tensor:
-    """Lower partial moment reduced by mean."""
-    return _reduce(lpm_elem(x, target=target, degree=degree, eps=eps), dim, keepdim)
-
+    """Lower partial moment reduced by mean, sum, or not reduced."""
+    return _reduce(lpm_elem(x, target=target, degree=degree, eps=eps), dim, keepdim, reduction)

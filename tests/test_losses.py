@@ -43,6 +43,28 @@ def test_copm_aux_loss_no_detach_backprops_to_final():
     assert final.grad is not None
 
 
+def test_copm_aux_loss_accepts_pm_network_list_and_stacked_shapes():
+    torch.manual_seed(7)
+    B, T, C, L = 2, 3, 4, 3
+    final = torch.randn(B, T, C)
+    hidden_base = torch.randn(L, B, T, C)
+    loss_fn = CoPMAuxLoss(degree_init=1.3)
+
+    hidden_list = [hidden_base[i].detach().clone().requires_grad_() for i in range(L)]
+    list_loss = loss_fn(hidden_list, final)
+    list_loss.backward()
+    assert list_loss.shape == ()
+    assert all(h.grad is not None and torch.isfinite(h.grad).all() for h in hidden_list)
+
+    hidden_stacked = hidden_base.detach().clone().requires_grad_()
+    stacked_loss = loss_fn(hidden_stacked, final)
+    stacked_loss.backward()
+    assert stacked_loss.shape == ()
+    assert hidden_stacked.grad is not None
+    assert torch.isfinite(hidden_stacked.grad).all()
+    torch.testing.assert_close(list_loss.detach(), stacked_loss.detach())
+
+
 def test_pm_margin_loss_penalizes_small_margins():
     logits_good = torch.tensor([[4.0, 0.0], [0.0, 4.0]])
     logits_bad = torch.tensor([[0.2, 0.0], [0.0, 0.2]])
@@ -50,4 +72,3 @@ def test_pm_margin_loss_penalizes_small_margins():
     loss_fn = PMMarginLoss(margin=1.0, degree_init=2.0)
 
     assert loss_fn(logits_good, targets) < loss_fn(logits_bad, targets)
-
