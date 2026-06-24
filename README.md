@@ -52,6 +52,12 @@ scripts/run_gpu_validation.sh
 
 CUDA tests skip automatically on CPU-only machines. The manual GPU workflow fails early if CUDA is unavailable.
 
+## Docs
+
+- [Asymmetric CoPM design note](docs/design/asymmetric_copm.md)
+- [GPU benchmark notes](docs/benchmarks/gpu_benchmark_notes.md)
+- [Current status report](docs/reports/nns_torch_status.md)
+
 CPU benchmark:
 
 ```bash
