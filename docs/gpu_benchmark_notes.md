@@ -46,6 +46,7 @@ Interpretation:
 - The signed-power `pm_cor` optimization carries to CUDA.
 - `CoPMAuxLoss` benefits strongly from avoiding the explicit per-layer loop.
 - List and stacked hidden-state inputs are very close on CUDA.
+- PM-Network-style `CoPMAuxLoss` shapes are supported; stacked tensors are slightly faster on A100 but list input remains viable.
 - CPU pod timings are noisy and not the main optimization target.
 
 Next optimization target:
