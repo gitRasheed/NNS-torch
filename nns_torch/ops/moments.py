@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import torch
-import torch.nn.functional as F
 
 EPS = 1e-8
 
@@ -28,6 +27,14 @@ def _reduce(
     raise ValueError("reduction must be 'none', 'sum', or 'mean'")
 
 
+def _hinge_power(hinge: torch.Tensor, degree: float | torch.Tensor, eps: float) -> torch.Tensor:
+    return hinge.sign() * hinge.clamp_min(eps).pow(degree)
+
+
+def _signed_power(x: torch.Tensor, degree: float | torch.Tensor, eps: float) -> torch.Tensor:
+    return x.sign() * x.abs().clamp_min(eps).pow(degree)
+
+
 def upm_elem(
     x: torch.Tensor,
     target: float | torch.Tensor = 0.0,
@@ -36,8 +43,7 @@ def upm_elem(
 ) -> torch.Tensor:
     """Elementwise upper partial moment: ``max(x - target, 0) ** degree``."""
     _check_degree(degree)
-    hinge = F.relu(x - target)
-    return torch.where(hinge > 0, hinge.clamp_min(eps).pow(degree), torch.zeros_like(hinge))
+    return _hinge_power((x - target).clamp_min(0), degree, eps)
 
 
 def lpm_elem(
@@ -48,8 +54,7 @@ def lpm_elem(
 ) -> torch.Tensor:
     """Elementwise lower partial moment: ``max(target - x, 0) ** degree``."""
     _check_degree(degree)
-    hinge = F.relu(target - x)
-    return torch.where(hinge > 0, hinge.clamp_min(eps).pow(degree), torch.zeros_like(hinge))
+    return _hinge_power((target - x).clamp_min(0), degree, eps)
 
 
 def upm(

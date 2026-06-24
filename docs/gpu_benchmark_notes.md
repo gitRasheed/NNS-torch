@@ -13,25 +13,25 @@ Validation:
 - `scripts/run_gpu_validation.sh`: 3 passed, 22 deselected
 - No OOMs at the current benchmark shapes
 
-Key CUDA forward numbers:
+Key CUDA forward numbers after the signed-power formulation:
 
 | Benchmark | Explicit | Optimized eager | Optimized compiled | Eager speedup | Compiled speedup | Max diff |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `pm_cor 1024x256` | 0.470 ms | 0.302 ms | 0.064 ms | 1.55x | 7.38x | 8.2e-8 |
-| `pm_cor 4096x768` | 0.582 ms | 0.412 ms | 0.095 ms | 1.41x | 6.10x | 1.06e-7 |
-| `pm_cor 8192x1024` | 1.464 ms | 1.052 ms | 0.167 ms | 1.39x | 8.74x | 1.12e-7 |
-| `CoPMAuxLoss list` | 4.991 ms | 0.960 ms | 0.512 ms | 5.20x | 9.74x | 2.91e-11 |
-| `CoPMAuxLoss stacked` | 4.931 ms | 0.853 ms | 0.424 ms | 5.78x | 11.63x | 8.73e-11 |
+| `pm_cor 1024x256` | 0.466 ms | 0.229 ms | 0.059 ms | 2.03x | 7.84x | 1.04e-7 |
+| `pm_cor 4096x768` | 0.583 ms | 0.315 ms | 0.112 ms | 1.85x | 5.22x | 9.69e-8 |
+| `pm_cor 8192x1024` | 1.543 ms | 0.837 ms | 0.201 ms | 1.84x | 7.68x | 9.69e-8 |
+| `CoPMAuxLoss list` | 3.983 ms | 0.738 ms | 0.526 ms | 5.40x | 7.58x | 7.28e-11 |
+| `CoPMAuxLoss stacked` | 3.961 ms | 0.686 ms | 0.435 ms | 5.78x | 9.11x | 5.82e-11 |
 
 Key CUDA forward+backward numbers:
 
 | Benchmark | Explicit | Optimized eager | Optimized compiled | Eager speedup | Compiled speedup | Max diff |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `pm_cor 1024x256` | 1.668 ms | 1.127 ms | 0.412 ms | 1.48x | 4.05x | 8.94e-8 |
-| `pm_cor 4096x768` | 1.787 ms | 1.289 ms | 0.459 ms | 1.39x | 3.89x | 1.04e-7 |
-| `pm_cor 8192x1024` | 4.527 ms | 3.228 ms | 0.582 ms | 1.40x | 7.78x | 1.01e-7 |
-| `CoPMAuxLoss list` | 15.146 ms | 3.019 ms | 1.290 ms | 5.02x | 11.74x | 5.82e-11 |
-| `CoPMAuxLoss stacked` | 15.385 ms | 2.798 ms | 1.104 ms | 5.50x | 13.94x | 1.46e-11 |
+| `pm_cor 1024x256` | 1.661 ms | 0.990 ms | 0.424 ms | 1.68x | 3.92x | 8.94e-8 |
+| `pm_cor 4096x768` | 1.785 ms | 1.064 ms | 0.423 ms | 1.68x | 4.22x | 1.04e-7 |
+| `pm_cor 8192x1024` | 4.257 ms | 2.639 ms | 0.454 ms | 1.61x | 9.37x | 8.94e-8 |
+| `CoPMAuxLoss list` | 13.423 ms | 2.598 ms | 1.172 ms | 5.17x | 11.45x | 0 |
+| `CoPMAuxLoss stacked` | 12.468 ms | 2.402 ms | 1.105 ms | 5.19x | 11.28x | 0 |
 
 Profiler bottlenecks are mostly elementwise/autograd work:
 
@@ -43,7 +43,7 @@ Profiler bottlenecks are mostly elementwise/autograd work:
 
 Interpretation:
 
-- The signed-magnitude `pm_cor` optimization carries to CUDA.
+- The signed-power `pm_cor` optimization carries to CUDA.
 - `CoPMAuxLoss` benefits strongly from avoiding the explicit per-layer loop.
 - List and stacked hidden-state inputs are very close on CUDA.
 - CPU pod timings are noisy and not the main optimization target.

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import torch
 
-from .moments import EPS, _check_degree, _reduce, lpm_elem, upm_elem
+from .moments import EPS, _check_degree, _reduce, _signed_power, lpm_elem, upm_elem
 
 
 def _target(x: torch.Tensor, target, dim, keepdim: bool) -> torch.Tensor | float:
@@ -93,8 +93,9 @@ def pm_cor(
 
     dx = x - target_x
     dy = y - target_y
-    x_mag = torch.where(dx != 0, dx.abs().clamp_min(eps).pow(half), torch.zeros_like(dx))
-    y_mag = torch.where(dy != 0, dy.abs().clamp_min(eps).pow(half), torch.zeros_like(dy))
-    numerator = _reduce(torch.sign(dx) * x_mag * torch.sign(dy) * y_mag, dim, keepdim)
-    denominator = _reduce(x_mag * y_mag, dim, keepdim)
+    x_signed = _signed_power(dx, half, eps)
+    y_signed = _signed_power(dy, half, eps)
+    signed_mass = x_signed * y_signed
+    numerator = _reduce(signed_mass, dim, keepdim)
+    denominator = _reduce(signed_mass.abs(), dim, keepdim)
     return numerator / (denominator + eps)

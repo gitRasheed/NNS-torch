@@ -20,6 +20,20 @@ def test_lpm_upm_hand_values_preserve_exact_target_zero():
     torch.testing.assert_close(nt.upm(x, target=0.0, degree=2.0, reduction="mean"), torch.tensor(2.0))
 
 
+def test_degree_zero_moments_are_nonnegative_tail_frequency():
+    x = torch.tensor([-2.0, -1.0, 0.0, 1.0, 3.0])
+    expected_lpm_elem = torch.tensor([1.0, 1.0, 0.0, 0.0, 0.0])
+    expected_upm_elem = torch.tensor([0.0, 0.0, 0.0, 1.0, 1.0])
+
+    lpm_elem = nt.lpm_elem(x, target=0.0, degree=0.0)
+    upm_elem = nt.upm_elem(x, target=0.0, degree=0.0)
+
+    torch.testing.assert_close(lpm_elem, expected_lpm_elem)
+    torch.testing.assert_close(upm_elem, expected_upm_elem)
+    assert (lpm_elem >= 0).all()
+    assert (upm_elem >= 0).all()
+
+
 def test_moment_reduction_and_broadcasting_match_reference():
     x = torch.tensor([[-2.0, 0.5, 4.0], [3.0, -1.0, 2.0]])
     target = torch.tensor([0.0, 1.0, 2.0])
