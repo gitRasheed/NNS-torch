@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nns-torch"
+version = "0.1.0"
+description = "PyTorch-native partial-moment tensor operators"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["torch"]
+
+[project.optional-dependencies]
+dev = ["numpy", "pytest"]
+test = ["numpy", "pytest"]
+
+[tool.setuptools.packages.find]
+include = ["nns_torch*"]
+
+[tool.pytest.ini_options]
+markers = [
+    "compile: tests that exercise torch.compile",
+    "cuda: tests that require CUDA",
+    "slow: tests that are too slow for normal local loops",
+]

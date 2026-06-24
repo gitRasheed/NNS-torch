@@ -1,0 +1,15 @@
+name: GPU
+
+on:
+  workflow_dispatch:
+
+jobs:
+  gpu:
+    runs-on: [self-hosted, linux, x64, gpu]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install package
+        run: pip install ".[dev]"
+      - name: Validate GPU
+        run: scripts/run_gpu_validation.sh
