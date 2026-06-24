@@ -45,6 +45,15 @@ def test_moment_reduction_sum_and_none_match_reference():
     )
 
 
+def test_moment_tuple_dim_reduction_matches_reference():
+    x = torch.arange(24, dtype=torch.float64).reshape(2, 3, 4) - 12.0
+
+    torch.testing.assert_close(
+        nt.lpm(x, target=0.0, degree=2.0, dim=(1, 2)),
+        ref.lpm_reference(x, 0.0, 2.0, dim=(1, 2)),
+    )
+
+
 def test_moment_broadcasting_scalar_vector_and_grad_target():
     x = torch.tensor([[-2.0, -1.0, 0.0], [1.0, 2.0, 3.0]], requires_grad=True)
     vector_target = torch.tensor([-1.0, 0.0, 1.0], requires_grad=True)

@@ -20,6 +20,14 @@ loss = nt.nn.CoPMAuxLoss(degree_init=1.3)([x], y)
 
 The package is pure PyTorch: no NNS-Python runtime dependency and no required CUDA extension.
 
+## API Semantics
+
+- `target` is the benchmark threshold. Values exactly equal to `target` contribute zero.
+- `degree` is the partial-moment order and must be non-negative for Python scalar inputs. Learned module degrees are constrained with `softplus`.
+- `lpm` and `upm` support `reduction="mean"`, `"sum"`, and `"none"` plus PyTorch `dim` / `keepdim` semantics.
+- `pm_cor` is currently mean-centered along `dim`; it does not accept explicit targets yet.
+- `co_lpm`, `co_upm`, and `pm_cor` use `degree / 2` per side so the product has total order `degree`.
+
 ## Development
 
 ```bash
@@ -43,3 +51,12 @@ scripts/run_gpu_validation.sh
 ```
 
 CUDA tests skip automatically on CPU-only machines. The manual GPU workflow fails early if CUDA is unavailable.
+
+CPU benchmark:
+
+```bash
+python benchmarks/bench_pm_cor.py
+python benchmarks/bench_copm_loss.py
+```
+
+`bench_pm_cor.py --smoke` stays tiny for CI.

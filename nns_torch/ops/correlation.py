@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import torch
 
-from .moments import EPS, _reduce, lpm_elem, upm_elem
+from .moments import EPS, _check_degree, _reduce, lpm_elem, upm_elem
 
 
 def _target(x: torch.Tensor, target, dim, keepdim: bool) -> torch.Tensor | float:
@@ -86,6 +86,7 @@ def pm_cor(
     eps: float = EPS,
 ) -> torch.Tensor:
     """Optimized signed-magnitude partial-moment correlation."""
+    _check_degree(degree)
     target_x = _target(x, None, dim, keepdim)
     target_y = _target(y, None, dim, keepdim)
     half = degree / 2.0
@@ -97,4 +98,3 @@ def pm_cor(
     numerator = _reduce(torch.sign(dx) * x_mag * torch.sign(dy) * y_mag, dim, keepdim)
     denominator = _reduce(x_mag * y_mag, dim, keepdim)
     return numerator / (denominator + eps)
-
